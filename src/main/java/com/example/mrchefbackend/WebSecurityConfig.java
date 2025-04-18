@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@EnableWebSecurity()
+@EnableWebSecurity
 @Configuration
 class WebSecurityConfig {
 
@@ -20,12 +20,13 @@ class WebSecurityConfig {
     public SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         http
-                .csrf((csrf) -> csrf
-                        .disable())
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(HttpMethod.POST, Constants.LOGIN_URL).permitAll()
-                        .anyRequest().authenticated())
-                .addFilterAfter(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf().disable() // Desactiva CSRF (puedes ajustarlo según tus necesidades)
+                .authorizeRequests(authz -> authz
+                    .requestMatchers(HttpMethod.POST, "/recetas/crear").authenticated() // Protege /recetas/crear, requiere autenticación
+                    .requestMatchers(HttpMethod.POST, Constants.LOGIN_URL).permitAll() // Permite el acceso al login sin autenticación
+                    .anyRequest().authenticated() // Protege cualquier otro endpoint
+                )
+                .addFilterAfter(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class); // Añade el filtro JWT
 
         return http.build();
     }
